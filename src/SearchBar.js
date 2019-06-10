@@ -12,7 +12,7 @@ import {
   Divider
 } from "@material-ui/core";
 import { withRouter } from "react-router-dom";
-import { getSearchBarInfo, filterData } from "./helpers";
+import { searchEntity } from "./helpers";
 const styles = {
   results: {
     width: "100%"
@@ -51,18 +51,14 @@ class SearchBar extends React.Component {
     };
   }
 
-  componentWillMount() {
-    getSearchBarInfo().then(results => this.setState({ ...results }));
-  }
-
-  handleEnter(event) {
+  async handleEnter(event) {
     if (event.key === "Enter") {
       const value = event.target.value;
       if (value) {
-        const filteredCharacters = filterData(this.state.characters, value);
-        const filteredPlanets = filterData(this.state.planets, value);
-        const filteredStarships = filterData(this.state.starships, value);
-        const filteredFilms = filterData(this.state.films, value);
+        const filteredCharacters = await searchEntity("people", value);
+        const filteredPlanets = await searchEntity("planets", value);
+        const filteredStarships = await searchEntity("starships", value);
+        const filteredFilms = await searchEntity("films", value);
         this.setState({
           showingResults: true,
           filteredCharacters,
@@ -87,17 +83,13 @@ class SearchBar extends React.Component {
       filteredPlanets,
       films
     } = this.state;
-    const isEnabled = Boolean(films.length !== 0);
     return (
       <div className={classes.resul}>
         <TextField
-          disabled={!isEnabled}
           onKeyPress={this.handleEnter}
           type="search"
           style={{ marginRight: 30 }}
-          placeholder={
-            isEnabled ? "Búsqueda" : "Cargando datos para búsqueda..."
-          }
+          placeholder={"Búsqueda"}
           fullWidth
           margin="normal"
           variant="outlined"

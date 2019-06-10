@@ -10,7 +10,14 @@ const fetchEntities = async entitiesArray => {
 
 const getUrlString = (url, type) => {
   const urlSplit = url.split("/");
-  return `/${type}/${urlSplit[urlSplit.length - 2]}`;
+  const correctType = type === "people" ? "characters" : type;
+  return `/${correctType}/${urlSplit[urlSplit.length - 2]}`;
+};
+
+export const searchEntity = async (entity, keyword) => {
+  const raw = await fetch(`https://swapi.co/api/${entity}/?search=${keyword}`);
+  const jsonInfo = await raw.json();
+  return jsonInfo.results.map(e => getEntityInfo(e, entity));
 };
 
 const getEntityInfo = (entity, type) => {
