@@ -1,13 +1,12 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Instalar dependencias
+## Setup
 
-En el directorio del repositorio, correr:
+- `yarn install`
+- `yarn start`
+- Start browsing at http://localhost:3000/
 
-### `yarn install`
+## Deployed at:
 
-## Correr la aplicación
+https://ti-graphql.herokuapp.com/
 
-### `yarn start`
-
-Ir a [http://localhost:3000](http://localhost:3000) para verlo en el navegador.
