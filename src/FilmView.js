@@ -11,7 +11,6 @@ import {
   Paper,
   Grid
 } from "@material-ui/core";
-import SearchBar from "./SearchBar";
 import moment from "moment";
 
 const styles = {
@@ -57,7 +56,6 @@ class App extends React.Component {
       : "";
     return (
       <div>
-        <SearchBar />
         {film && <Typography variant="h2">{film.title}</Typography>}
         <Grid direction="row" container spacing={24}>
           {film && (

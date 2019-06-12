@@ -151,3 +151,27 @@ export const getFilmInfo = async filmId => {
   );
   return { film, characters, planets, starships };
 };
+
+const GRAPHQL_URL = "https://swapi-graphql-integracion-t3.herokuapp.com/";
+const fetchOptions = body => ({
+  method: "POST",
+  headers: { "Content-Type": "application/json", Accept: "application/json" },
+  body: JSON.stringify(body)
+});
+
+export const testGraphQl = async () => {
+  const body = {
+    query: `{
+    allStarships {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }`
+  };
+  const response = await fetch(GRAPHQL_URL, fetchOptions(body));
+  const jsonResponse = await response.json();
+  console.log(jsonResponse);
+};

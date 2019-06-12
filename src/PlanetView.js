@@ -11,7 +11,6 @@ import {
   Paper,
   Grid
 } from "@material-ui/core";
-import SearchBar from "./SearchBar";
 
 const styles = {
   listRoot: {
@@ -48,7 +47,6 @@ class PlanetView extends React.Component {
     const { films, residents, planet } = this.state;
     return (
       <div>
-        <SearchBar />
         {planet && <Typography variant="h2">{planet.name}</Typography>}
         <Grid direction="row" container spacing={24}>
           {planet && (
