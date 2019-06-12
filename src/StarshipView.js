@@ -31,10 +31,9 @@ class CharacterView extends React.Component {
     };
     this.handleClick = this.handleClick.bind(this);
   }
-  componentWillMount() {
-    getStarshipInfo(this.props.match.params.id).then(result =>
-      this.setState({ ...result })
-    );
+  async componentWillMount() {
+    const response = await getStarshipInfo(this.props.match.params.id);
+    this.setState({ ...response });
   }
   handleClick(urlString) {
     return e => {
@@ -67,7 +66,7 @@ class CharacterView extends React.Component {
                   </div>
                   <div>
                     <Typography>
-                      Costo en créditos: {`${starship.cost_in_credits}`}
+                      Costo en créditos: {`${starship.costInCredits}`}
                     </Typography>
                   </div>
                   <div>
@@ -76,7 +75,7 @@ class CharacterView extends React.Component {
                   <div>
                     <Typography>
                       Máxima velocidad en atmósfera:{" "}
-                      {`${starship.max_atmosphering_speed}`}
+                      {`${starship.maxAtmospheringSpeed}`}
                     </Typography>
                   </div>
                   <div>
@@ -89,7 +88,7 @@ class CharacterView extends React.Component {
                   </div>
                   <div>
                     <Typography>
-                      Capacidad de cargo: {`${starship.cargo_capacity}`}
+                      Capacidad de cargo: {`${starship.cargoCapacity}`}
                     </Typography>
                   </div>
                   <div>
@@ -99,7 +98,7 @@ class CharacterView extends React.Component {
                   </div>
                   <div>
                     <Typography>
-                      Hyperdrive rating: {`${starship.hyperdrive_rating}`}
+                      Hyperdrive rating: {`${starship.hyperdriveRating}`}
                     </Typography>
                   </div>
                   <div>
@@ -107,7 +106,7 @@ class CharacterView extends React.Component {
                   </div>
                   <div>
                     <Typography>
-                      Clase: {`${starship.starship_class}`}
+                      Clase: {`${starship.starshipClass}`}
                     </Typography>
                   </div>
                 </Grid>

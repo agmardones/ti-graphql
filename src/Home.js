@@ -1,7 +1,7 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import { Typography, withStyles } from "@material-ui/core";
-import { getAllFilms, testGraphQl } from "./helpers";
+import { getAllFilms } from "./helpers";
 import FilmRowComponent from "./FilmRow";
 
 const styles = {
@@ -18,14 +18,14 @@ class App extends React.Component {
     };
   }
 
-  async componentWillMount() {
-    await testGraphQl();
+  componentWillMount() {
     getAllFilms().then(films => this.setState({ films }));
   }
 
   render() {
     const { classes } = this.props;
     const { films } = this.state;
+    console.log(films);
     return (
       <div className={classes.root}>
         <Typography variant="h2"> Películas </Typography>

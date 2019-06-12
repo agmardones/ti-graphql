@@ -39,11 +39,10 @@ class App extends React.Component {
     };
   }
 
-  componentWillMount() {
-    getFilmInfo(this.props.match.params.id).then(response => {
-      const { film, characters, planets, starships } = response;
-      this.setState({ film, characters, planets, starships });
-    });
+  async componentWillMount() {
+    const response = await getFilmInfo(this.props.match.params.id);
+    const { film, characters, planets, starships } = response;
+    this.setState({ film, characters, planets, starships });
   }
 
   render() {
@@ -65,14 +64,14 @@ class App extends React.Component {
                   <div>
                     <Typography>
                       {" "}
-                      Número episodio: {`${film.episode_id}`}
+                      Número episodio: {`${film.episodeId}`}
                     </Typography>
                   </div>
                   <div>
                     <Typography> Director: {`${film.director}`}</Typography>
                   </div>
                   <div>
-                    <Typography> Productor: {`${film.producer}`}</Typography>
+                    <Typography> Productor: {`${film.producers}`}</Typography>
                   </div>
                   <div>
                     <Typography>

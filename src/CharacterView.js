@@ -65,22 +65,22 @@ class CharacterView extends React.Component {
                   </div>
                   <div>
                     <Typography>
-                      Color de pelo: {`${character.hair_color}`}
+                      Color de pelo: {`${character.hairColor}`}
                     </Typography>
                   </div>
                   <div>
                     <Typography>
-                      Color de piel: {`${character.skin_color}`}
+                      Color de piel: {`${character.skinColor}`}
                     </Typography>
                   </div>
                   <div>
                     <Typography>
-                      Color de ojos: {`${character.eye_color}`}
+                      Color de ojos: {`${character.eyeColor}`}
                     </Typography>
                   </div>
                   <div>
                     <Typography>
-                      Año nacimiento: {`${character.birth_year}`}
+                      Año nacimiento: {`${character.birthYear}`}
                     </Typography>
                   </div>
                   <div>

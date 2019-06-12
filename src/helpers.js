@@ -1,17 +1,12 @@
-const fetchEntities = async entitiesArray => {
-  const entitiesInfo = await Promise.all(
-    entitiesArray.map(entity => fetch(entity))
-  );
-  const parsedEntity = await Promise.all(
-    entitiesInfo.map(entity => entity.json())
-  );
-  return parsedEntity;
-};
+const GRAPHQL_URL = "https://swapi-graphql-integracion-t3.herokuapp.com/";
+const fetchOptions = body => ({
+  method: "POST",
+  headers: { "Content-Type": "application/json", Accept: "application/json" },
+  body: JSON.stringify(body)
+});
 
-const getUrlString = (url, type) => {
-  const urlSplit = url.split("/");
-  const correctType = type === "people" ? "characters" : type;
-  return `/${correctType}/${urlSplit[urlSplit.length - 2]}`;
+const getUrlString = (id, type) => {
+  return `/${type}/${id}`;
 };
 
 export const searchEntity = async (entity, keyword) => {
@@ -22,7 +17,7 @@ export const searchEntity = async (entity, keyword) => {
 
 const getEntityInfo = (entity, type) => {
   const name = type === "films" ? entity.title : entity.name;
-  return { name, url: getUrlString(entity.url, type) };
+  return { name, url: getUrlString(entity.id, type) };
 };
 
 export const filterData = (data, value) => {
@@ -44,54 +39,79 @@ export const fetchEntitiesIndex = async entity => {
   return data;
 };
 
-export const getSearchBarInfo = async () => {
-  const parsedFilms = await fetchEntitiesIndex("films");
-  const parsedPlanets = await fetchEntitiesIndex("planets");
-  const parsedStarships = await fetchEntitiesIndex("starships");
-  const parsedCharacters = await fetchEntitiesIndex("people");
-  return {
-    films: parsedFilms.map(film => getEntityInfo(film, "films")),
-    planets: parsedPlanets.map(planet => getEntityInfo(planet, "planets")),
-    starships: parsedStarships.map(starship =>
-      getEntityInfo(starship, "starships")
-    ),
-    characters: parsedCharacters.map(char => getEntityInfo(char, "characters"))
-  };
-};
 export const getAllFilms = async () => {
-  const rawFilms = await fetch("https://swapi.co/api/films");
-  const films = await rawFilms.json();
-  return films.results.map(film => {
+  const body = {
+    query: `{ allFilms { edges { node { id title episodeID openingCrawl releaseDate producers director } } } }`
+  };
+  const response = await fetch(GRAPHQL_URL, fetchOptions(body));
+  const {
+    data: {
+      allFilms: { edges }
+    }
+  } = await response.json();
+  return edges.map(e => {
+    const { node } = e;
     const {
+      id,
       title,
-      episode_id,
       director,
-      producer,
-      release_date,
-      opening_crawl,
-      url
-    } = film;
+      producers,
+      episodeID,
+      releaseDate,
+      openingCrawl
+    } = node;
+    const url = `/films/${id}`;
     return {
+      id,
       title,
-      episodeId: episode_id,
+      episodeId: episodeID,
       director,
-      producer,
-      releaseDate: release_date,
-      openingCrawl: opening_crawl,
+      producers,
+      releaseDate,
+      openingCrawl,
       url
     };
   });
 };
 
 export const getPlanetInfo = async planetId => {
-  const rawPlanet = await fetch(`https://swapi.co/api/planets/${planetId}`);
-  const planet = await rawPlanet.json();
-  const residentsInfo = await fetchEntities(planet.residents);
-  const residents = residentsInfo.map(resident =>
-    getEntityInfo(resident, "characters")
+  const body = {
+    query: `{
+      planet(id: "${planetId}") {
+        id
+        name
+        rotationPeriod
+        orbitalPeriod
+        diameter
+        climates
+        gravity
+        terrains
+        surfaceWater
+        population
+        residentConnection{
+          residents{
+            name
+            id
+          }
+        }
+        filmConnection {
+          films {
+            title
+            id
+          }
+        }
+      }
+    }`
+  };
+  const response = await fetch(GRAPHQL_URL, fetchOptions(body));
+  const {
+    data: { planet }
+  } = await response.json();
+  const { residentConnection, filmConnection } = planet;
+  const films = filmConnection.films.map(f => getEntityInfo(f, "films"));
+  const residents = residentConnection.residents.map(c =>
+    getEntityInfo(c, "characters")
   );
-  const filmsInfo = await fetchEntities(planet.films);
-  const films = filmsInfo.map(film => getEntityInfo(film, "films"));
   return {
     planet,
     residents,
@@ -100,14 +120,47 @@ export const getPlanetInfo = async planetId => {
 };
 
 export const getStarshipInfo = async starshipId => {
-  const rawStarship = await fetch(
-    `https://swapi.co/api/starships/${starshipId}`
+  const body = {
+    query: `{
+      starship(id: "${starshipId}") {
+        id
+        name
+        model
+        manufacturers
+        costInCredits
+        length
+        maxAtmospheringSpeed
+        crew
+        passengers
+        cargoCapacity
+        consumables
+        hyperdriveRating
+        MGLT
+        starshipClass
+        pilotConnection{
+          pilots{
+            name
+            id
+          }
+        }
+        filmConnection {
+          films {
+            title
+            id
+          }
+        }
+      }
+    }`
+  };
+  const response = await fetch(GRAPHQL_URL, fetchOptions(body));
+  const {
+    data: { starship }
+  } = await response.json();
+  const { filmConnection, pilotConnection } = starship;
+  const pilots = pilotConnection.pilots.map(p =>
+    getEntityInfo(p, "characters")
   );
-  const starship = await rawStarship.json();
-  const filmsInfo = await fetchEntities(starship.films);
-  const films = filmsInfo.map(film => getEntityInfo(film, "films"));
-  const pilotsInfo = await fetchEntities(starship.pilots);
-  const pilots = pilotsInfo.map(pilot => getEntityInfo(pilot, "characters"));
+  const films = filmConnection.films.map(f => getEntityInfo(f, "films"));
   return {
     starship,
     films,
@@ -116,62 +169,138 @@ export const getStarshipInfo = async starshipId => {
 };
 
 export const getCharacterInfo = async characterId => {
-  const rawCharacter = await fetch(
-    `https://swapi.co/api/people/${characterId}`
+  const body = {
+    query: `{
+      person(id: "${characterId}") {
+        id
+        name
+        birthYear
+        eyeColor
+        gender
+        hairColor
+        height
+        mass
+        skinColor
+        homeworld {
+          id
+          name
+        }
+        filmConnection {
+          films {
+            title
+            id
+          }
+        }
+        starshipConnection {
+          starships {
+            name
+            id
+          }
+        }
+      }
+    }`
+  };
+  const response = await fetch(GRAPHQL_URL, fetchOptions(body));
+  const {
+    data: { person }
+  } = await response.json();
+  const {
+    birthYear,
+    eyeColor,
+    filmConnection,
+    gender,
+    hairColor,
+    height,
+    homeworld,
+    mass,
+    name,
+    skinColor,
+    starshipConnection
+  } = person;
+  const starships = starshipConnection.starships.map(s =>
+    getEntityInfo(s, "starships")
   );
-  const character = await rawCharacter.json();
-  const filmsInfo = await fetchEntities(character.films);
-  const films = filmsInfo.map(film => getEntityInfo(film, "films"));
-  const starshipsInfo = await fetchEntities(character.starships);
-  const starships = starshipsInfo.map(starship =>
-    getEntityInfo(starship, "starships")
-  );
-  const homeWorldInfo = await fetch(character.homeworld);
-  const homeWorld = await homeWorldInfo.json();
+  const films = filmConnection.films.map(f => getEntityInfo(f, "films"));
+  const character = {
+    skinColor,
+    birthYear,
+    eyeColor,
+    gender,
+    hairColor,
+    mass,
+    name,
+    height
+  };
   return {
     character,
     films,
     starships,
-    homeWorld: homeWorld.name
+    homeWorld: homeworld.name
   };
 };
 
 export const getFilmInfo = async filmId => {
-  const rawFilm = await fetch(`https://swapi.co/api/films/${filmId}`);
-  const film = await rawFilm.json();
-  const charactersInfo = await fetchEntities(film.characters);
-  const planetsInfo = await fetchEntities(film.planets);
-  const starshipsInfo = await fetchEntities(film.starships);
-  const characters = charactersInfo.map(char =>
-    getEntityInfo(char, "characters")
-  );
-  const planets = planetsInfo.map(planet => getEntityInfo(planet, "planets"));
-  const starships = starshipsInfo.map(starship =>
-    getEntityInfo(starship, "starships")
-  );
-  return { film, characters, planets, starships };
-};
-
-const GRAPHQL_URL = "https://swapi-graphql-integracion-t3.herokuapp.com/";
-const fetchOptions = body => ({
-  method: "POST",
-  headers: { "Content-Type": "application/json", Accept: "application/json" },
-  body: JSON.stringify(body)
-});
-
-export const testGraphQl = async () => {
   const body = {
     query: `{
-    allStarships {
-      edges {
-        node {
-          id
+      film(id: "${filmId}") {
+        id
+        title
+        episodeID
+        openingCrawl
+        releaseDate
+        producers
+        director
+        characterConnection {
+          characters {
+            name
+            id
+          }
+        }
+        starshipConnection {
+          starships {
+            name
+            id
+          }
+        }
+        planetConnection {
+          planets {
+            name
+            id
+          }
         }
       }
-    }
-  }`
+    }`
   };
   const response = await fetch(GRAPHQL_URL, fetchOptions(body));
-  const jsonResponse = await response.json();
-  console.log(jsonResponse);
+  const {
+    data: {
+      film: {
+        title,
+        episodeID,
+        releaseDate,
+        producers,
+        director,
+        characterConnection,
+        planetConnection,
+        starshipConnection
+      }
+    }
+  } = await response.json();
+  const film = {
+    title,
+    episodeId: episodeID,
+    releaseDate,
+    producers,
+    director
+  };
+  const characters = characterConnection.characters.map(c =>
+    getEntityInfo(c, "characters")
+  );
+  const planets = planetConnection.planets.map(p =>
+    getEntityInfo(p, "planets")
+  );
+  const starships = starshipConnection.starships.map(s =>
+    getEntityInfo(s, "starships")
+  );
+  return { film, characters, planets, starships };
 };

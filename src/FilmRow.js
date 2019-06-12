@@ -46,9 +46,7 @@ class FilmRow extends React.Component {
   handleClick() {
     const { filmInfo } = this.props;
     const { url } = filmInfo;
-    const splittedUrl = url.split("/");
-    const filmId = splittedUrl[splittedUrl.length - 2];
-    this.props.history.push(`/films/${filmId}`);
+    this.props.history.push(url);
   }
 
   render() {
@@ -57,10 +55,14 @@ class FilmRow extends React.Component {
       title,
       episodeId,
       director,
-      producer,
+      producers,
       releaseDate,
       openingCrawl
     } = filmInfo;
+    const producersString = producers.reduce(
+      (prev, actual) => prev + `${actual}, `,
+      ""
+    );
     const releaseYear = releaseDate.split("-")[0];
     return (
       <ExpansionPanel>
@@ -73,7 +75,7 @@ class FilmRow extends React.Component {
         <ExpansionPanelDetails className={classes.flexContainer}>
           <div className={classes.paragraph}>Episodio: {episodeId}</div>
           <div className={classes.paragraph}>Director: {director} </div>
-          <div className={classes.paragraph}>Productor: {producer} </div>
+          <div className={classes.paragraph}>Productor: {producersString} </div>
           <div className={classes.paragraph}>Reseña:</div>
           <div>
             <Typography>{openingCrawl}</Typography>

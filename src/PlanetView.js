@@ -58,29 +58,29 @@ class PlanetView extends React.Component {
                   </div>
                   <div>
                     <Typography>
-                      Periodo de rotación: {`${planet.rotation_period}`}
+                      Periodo de rotación: {`${planet.rotationPeriod}`}
                     </Typography>
                   </div>
                   <div>
                     <Typography>
-                      Periodo de órbita: {`${planet.orbital_period}`}
+                      Periodo de órbita: {`${planet.orbitalPeriod}`}
                     </Typography>
                   </div>
                   <div>
                     <Typography>Diámetro: {`${planet.diameter}`}</Typography>
                   </div>
                   <div>
-                    <Typography>Clima: {`${planet.climate}`}</Typography>
+                    <Typography>Clima: {`${planet.climates}`}</Typography>
                   </div>
                   <div>
                     <Typography>Gravedad: {`${planet.gravity}`}</Typography>
                   </div>
                   <div>
-                    <Typography>Terreno: {`${planet.terrain}`}</Typography>
+                    <Typography>Terreno: {`${planet.terrains}`}</Typography>
                   </div>
                   <div>
                     <Typography>
-                      Agua superficial: {`${planet.surface_water}`}
+                      Agua superficial: {`${planet.surfaceWater}`}
                     </Typography>
                   </div>
                   <div>
